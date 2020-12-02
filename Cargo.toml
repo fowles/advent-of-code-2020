@@ -1,0 +1,8 @@
+[package]
+name = "aoc2020"
+version = "0.1.0"
+authors = ["Matt Kulukundis <matt.fowles@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+text_io = "0.1.8"
