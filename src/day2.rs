@@ -1,27 +1,4 @@
-#![allow(dead_code)]
-
 use text_io::scan;
-
-fn main() {
-    day2();
-}
-
-fn day1() {
-    let expenses: Vec<i64> = std::fs::read_to_string("data/day1.txt")
-        .unwrap()
-        .lines()
-        .map(|s| s.parse().unwrap())
-        .collect();
-    for i in &expenses {
-        for j in &expenses {
-            for k in &expenses {
-                if i + j + k == 2020 {
-                    println!("{}", i*j*k);
-                }
-            }
-        }
-    }
-}
 
 #[derive(Default)]
 struct PasswordRecord {
@@ -31,16 +8,36 @@ struct PasswordRecord {
     required: String,
 }
 
-fn day2() {
-    let passwords: Vec<PasswordRecord> = std::fs::read_to_string("data/day2.txt")
-        .unwrap()
-        .lines()
+
+#[aoc_generator(day2)]
+fn gen(input: &str) -> Vec<PasswordRecord> {
+    input.lines()
         .map(|s| {
             let mut r: PasswordRecord = Default::default();
             scan!(s.bytes() => "{}-{} {}: {}", r.min, r.max, r.required, r.password);
             r
         })
-        .collect();
+        .collect()
+}
+
+
+fn day2() {
+}
+
+#[aoc(day2, part1)]
+fn part1(expenses: &[PasswordRecord]) {
+    let mut clean: usize = 0;
+    for p in &passwords {
+        let c = p.password.matches(p.required).count();
+        if p.min <= c && c <= p.max {
+            clean += 1;
+        }
+    }
+    println!("{}", clean);
+}
+
+#[aoc(day2, part2)]
+fn part2(expenses: &[PasswordRecord]) {
     let mut clean: usize = 0;
     for p in &passwords {
         let p1 = &p.password[p.min - 1 .. p.min];
@@ -55,3 +52,4 @@ fn day2() {
     }
     println!("{}", clean);
 }
+
