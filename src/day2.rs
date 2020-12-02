@@ -21,25 +21,22 @@ fn gen(input: &str) -> Vec<PasswordRecord> {
 }
 
 
-fn day2() {
-}
-
 #[aoc(day2, part1)]
-fn part1(expenses: &[PasswordRecord]) {
+fn part1(passwords: &[PasswordRecord]) -> usize {
     let mut clean: usize = 0;
-    for p in &passwords {
-        let c = p.password.matches(p.required).count();
+    for p in passwords {
+        let c = p.password.matches(&p.required).count();
         if p.min <= c && c <= p.max {
             clean += 1;
         }
     }
-    println!("{}", clean);
+    return clean;
 }
 
 #[aoc(day2, part2)]
-fn part2(expenses: &[PasswordRecord]) {
+fn part2(passwords: &[PasswordRecord]) -> usize {
     let mut clean: usize = 0;
-    for p in &passwords {
+    for p in passwords {
         let p1 = &p.password[p.min - 1 .. p.min];
         let p2 = &p.password[p.max - 1 .. p.max];
         let r = &p.required;
@@ -50,6 +47,6 @@ fn part2(expenses: &[PasswordRecord]) {
             clean += 1;
         }
     }
-    println!("{}", clean);
+    return clean;
 }
 
