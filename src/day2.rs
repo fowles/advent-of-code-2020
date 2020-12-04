@@ -1,20 +1,23 @@
 #[derive(Default)]
 struct PasswordRecord {
-    password: String,
     min: usize,
     max: usize,
     required: String,
+    password: String,
 }
 
 impl std::str::FromStr for PasswordRecord {
-    type Err = Box<text_io::Error>;
+    type Err = scan_fmt::parse::ScanError;
 
     fn from_str(s: &str) -> Result<PasswordRecord, Self::Err> {
-        let mut r: PasswordRecord = Default::default();
-        text_io::try_scan!(
-                s.bytes() => "{}-{} {}: {}",
-                r.min, r.max, r.required, r.password);
-        Ok(r)
+        scan_fmt::scan_fmt!(s, "{}-{} {}: {}", usize, usize, String, String).map(
+            |(min, max, required, password)| PasswordRecord{
+                min: min,
+                max: max,
+                required: required,
+                password: password,
+            })
+
     }
 }
 
