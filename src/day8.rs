@@ -10,7 +10,8 @@ fn gen(input: &str) -> Vec<(String, i64)> {
 fn eval(prog: &[(String, i64)]) -> (i64, i64) {
     let mut acc: i64 = 0;
     let mut ic: i64 = 0;
-    let mut seen : HashSet<i64> = vec![prog.len() as i64].into_iter().collect();
+    let mut seen = HashSet::<i64>::new();
+    seen.insert(prog.len() as i64);
 
     while seen.insert(ic) {
         let p = &prog[ic as usize];
