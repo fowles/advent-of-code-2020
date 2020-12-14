@@ -5,7 +5,9 @@ authors = ["Matt Kulukundis <matt.fowles@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-scan_fmt = "*"
+bit-vec = "*"
+itertools = "*"
 regex = "*"
+scan_fmt = "*"
 aoc-runner = "0.3.0"
 aoc-runner-derive = "0.3.0"
