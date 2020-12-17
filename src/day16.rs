@@ -49,37 +49,24 @@ fn gen(input: &str) -> Tickets {
     tickets
 }
 
-fn is_valid(tickets: &Tickets, t: &Vec<usize>) -> bool {
-    'valid: for v in t {
-        for (r1, r2) in tickets.rules.values() {
-            if r1.contains(&v) {
-                continue 'valid;
-            }
-            if r2.contains(&v) {
-                continue 'valid;
-            }
-        }
-
-        return false;
-    }
-    return true;
+fn is_valid(tickets: &Tickets, ticket: &Vec<usize>) -> bool {
+    ticket.iter().all(|v| {
+        tickets.rules.values().any(|(r1, r2)| {
+            r1.contains(&v) || r2.contains(&v)
+        })
+    })
 }
 
 #[aoc(day16, part1)]
 fn part1(tickets: &Tickets) -> usize {
     let mut r = 0;
     for near in &tickets.nearby {
-        'valid: for v in near {
-            for (r1, r2) in tickets.rules.values() {
-                if r1.contains(&v) {
-                    continue 'valid;
-                }
-                if r2.contains(&v) {
-                    continue 'valid;
-                }
-            }
-
-            r += v;
+        for v in near {
+           let valid = tickets.rules.values().any(
+               |(r1, r2)| r1.contains(&v) || r2.contains(&v));
+           if !valid {
+               r += v;
+           }
         }
     }
     r
