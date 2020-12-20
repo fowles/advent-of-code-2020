@@ -5,6 +5,7 @@ authors = ["Matt Kulukundis <matt.fowles@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+array2d = "*"
 bit-vec = "*"
 itertools = "*"
 regex = "*"
