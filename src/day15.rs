@@ -39,6 +39,5 @@ fn part2(nums: &[usize]) -> usize {
 #[test]
 fn test_small() {
     assert_eq!(part1(&gen("0,3,6")), 436);
-    assert_eq!(part2(&gen("0,3,6")), 175594);
 }
 
