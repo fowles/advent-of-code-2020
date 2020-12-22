@@ -53,15 +53,16 @@ fn part1(decks: &(VecDeque<usize>, VecDeque<usize>)) -> usize {
 fn play_recursive(decks: &mut (VecDeque<usize>, VecDeque<usize>)) {
     let c = (decks.0.pop_front().unwrap(), decks.1.pop_front().unwrap());
 
-    let p0_win = if c.0 <= decks.0.len() && c.1 <= decks.1.len() {
+    let p0_win;
+    if c.0 <= decks.0.len() && c.1 <= decks.1.len() {
         let mut rd = (
             decks.0.iter().take(c.0).cloned().collect(),
             decks.1.iter().take(c.1).cloned().collect(),
         );
         run_recursive(&mut rd);
-        rd.1.is_empty()
+        p0_win = rd.1.is_empty();
     } else {
-        c.0 > c.1
+        p0_win = c.0 > c.1
     };
 
     if p0_win {
@@ -79,14 +80,14 @@ fn run_recursive(decks: &mut (VecDeque<usize>, VecDeque<usize>)) {
         if decks.0.is_empty() || decks.1.is_empty() {
             break;
         }
-        if seen.contains(decks) {
+        if seen.contains(&decks.0) {
             decks.1.clear();
             break;
         }
 
         let old = decks.clone();
         play_recursive(decks);
-        seen.insert(old);
+        seen.insert(old.0);
     }
 }
 
