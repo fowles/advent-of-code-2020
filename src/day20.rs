@@ -1,7 +1,7 @@
-use scan_fmt::scan_fmt;
-use std::collections::HashMap;
 use array2d::Array2D;
 use regex::Regex;
+use scan_fmt::scan_fmt;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 struct Tile {
@@ -10,29 +10,32 @@ struct Tile {
 }
 
 fn copy_into(p: &mut Array2D<char>, c: &Array2D<char>, pos: (usize, usize)) {
-    for i in 1..c.num_rows()-1 {
-        for j in 1..c.num_columns()-1 {
-            p.set(pos.0 + i - 1, pos.1 + j - 1, *c.get(i, j).unwrap()).expect("OOB");
+    for i in 1..c.num_rows() - 1 {
+        for j in 1..c.num_columns() - 1 {
+            p.set(pos.0 + i - 1, pos.1 + j - 1, *c.get(i, j).unwrap())
+                .expect("OOB");
         }
     }
 }
 
 fn find_orientation<F>(p: &Array2D<char>, f: F) -> Array2D<char>
-    where F : Fn(&Array2D<char>) -> bool {
-        for i in 0..4 {
-            let r = rotate(&p, i);
-            if f(&r) {
-                return r;
-            }
+where
+    F: Fn(&Array2D<char>) -> bool,
+{
+    for i in 0..4 {
+        let r = rotate(&p, i);
+        if f(&r) {
+            return r;
         }
-        for i in 0..4 {
-            let r = flip(&rotate(&p, i));
-            if f(&r) {
-                return r;
-            }
-        }
-        panic!();
     }
+    for i in 0..4 {
+        let r = flip(&rotate(&p, i));
+        if f(&r) {
+            return r;
+        }
+    }
+    panic!();
+}
 
 fn flip(pixels: &Array2D<char>) -> Array2D<char> {
     let mut rows = pixels.as_rows();
@@ -85,18 +88,19 @@ fn parse_tile(input: &str) -> Tile {
     Tile {
         id: scan_fmt!(lines.next().unwrap(), "Tile {d}:", usize).unwrap(),
         pixels: Array2D::from_rows(
-            &lines.map(|l| {
-                l.chars().collect()
-            }).collect::<Vec<Vec<char>>>()),
+            &lines
+                .map(|l| l.chars().collect())
+                .collect::<Vec<Vec<char>>>(),
+        ),
     }
 }
 
 #[aoc_generator(day20)]
 fn gen(input: &str) -> Vec<Tile> {
-    input.split("\n\n").map(|t| parse_tile(t)).collect()
+    input.split("\n\n").map(parse_tile).collect()
 }
 
-fn build_pairings(tiles: &Vec<Tile>) -> HashMap::<Vec<char>, Vec<&Tile>> {
+fn build_pairings(tiles: &Vec<Tile>) -> HashMap<Vec<char>, Vec<&Tile>> {
     let mut pairings = HashMap::<Vec<char>, Vec<&Tile>>::new();
     for t in tiles {
         for i in 0..4 {
@@ -111,8 +115,10 @@ fn build_pairings(tiles: &Vec<Tile>) -> HashMap::<Vec<char>, Vec<&Tile>> {
     pairings
 }
 
-fn find_corners<'t>(tiles: &'t Vec<Tile>, pairings: &HashMap::<Vec<char>, Vec<&Tile>>)
--> Vec<&'t Tile> {
+fn find_corners<'t>(
+    tiles: &'t Vec<Tile>,
+    pairings: &HashMap<Vec<char>, Vec<&Tile>>,
+) -> Vec<&'t Tile> {
     let mut corners = vec![];
     for t in tiles {
         let mut unmatched = 0;
@@ -121,15 +127,16 @@ fn find_corners<'t>(tiles: &'t Vec<Tile>, pairings: &HashMap::<Vec<char>, Vec<&T
             let r = flip_border(&t.pixels, i);
             let c = std::cmp::max(
                 pairings.get(&b).unwrap().len(),
-                pairings.get(&r).unwrap().len());
+                pairings.get(&r).unwrap().len(),
+            );
             match c {
                 1 => {
                     unmatched += 1;
-                },
+                }
                 2 => {
                     // matched
-                },
-                _ => panic!(),  // our cheating caught up with us
+                }
+                _ => panic!(), // our cheating caught up with us
             }
         }
         if unmatched == 2 {
@@ -140,8 +147,7 @@ fn find_corners<'t>(tiles: &'t Vec<Tile>, pairings: &HashMap::<Vec<char>, Vec<&T
     corners
 }
 
-fn find_paired(t: &Tile, side: usize, pairings: &HashMap::<Vec<char>, Vec<&Tile>>)
--> Tile {
+fn find_paired(t: &Tile, side: usize, pairings: &HashMap<Vec<char>, Vec<&Tile>>) -> Tile {
     let b = border(&t.pixels, side);
     let mut opts = vec![];
     opts.append(&mut pairings.get(&b).unwrap().clone());
@@ -158,7 +164,6 @@ fn find_paired(t: &Tile, side: usize, pairings: &HashMap::<Vec<char>, Vec<&Tile>
     }
     panic!();
 }
-
 
 #[aoc(day20, part1)]
 fn part1(tiles: &Vec<Tile>) -> usize {
@@ -181,72 +186,77 @@ fn part2(tiles: &Vec<Tile>) -> usize {
 
     for i in 0..tile_size {
         for j in 0..tile_size {
-            grid.set(i, j, 
-                          Some(match (i, j) {
-                              (0, 0) => Tile {
-                                  id: corners[0].id,
-                                  pixels: find_orientation(&corners[0].pixels, |p| {
-                                      let r = border(&p, 1);
-                                      let b = border(&p, 2);
-                                      pairings.get(&r).unwrap().len() == 2 &&
-                                          pairings.get(&b).unwrap().len() == 2
-
-                                  }),
-                              },
-                              (0, _) => find_paired(get(&grid, i, j - 1), 2, &pairings),
-                              (_, _) => find_paired(get(&grid, i - 1, j), 1, &pairings),
-                          })).expect("OOB");
+            grid.set(
+                i,
+                j,
+                Some(match (i, j) {
+                    (0, 0) => Tile {
+                        id: corners[0].id,
+                        pixels: find_orientation(&corners[0].pixels, |p| {
+                            let r = border(&p, 1);
+                            let b = border(&p, 2);
+                            pairings.get(&r).unwrap().len() == 2
+                                && pairings.get(&b).unwrap().len() == 2
+                        }),
+                    },
+                    (0, _) => find_paired(get(&grid, i, j - 1), 2, &pairings),
+                    (_, _) => find_paired(get(&grid, i - 1, j), 1, &pairings),
+                }),
+            )
+            .expect("OOB");
         }
     }
 
     let pixel_size = tiles[0].pixels.num_rows() - 2;
-    let mut image: Array2D<char> = Array2D::filled_with(' ', tile_size * pixel_size, tile_size * pixel_size);
+    let mut image: Array2D<char> =
+        Array2D::filled_with(' ', tile_size * pixel_size, tile_size * pixel_size);
     for i in 0..tile_size {
         for j in 0..tile_size {
-            copy_into(&mut image, &get(&grid, j, i).pixels, (i * pixel_size, j * pixel_size));
+            copy_into(
+                &mut image,
+                &get(&grid, j, i).pixels,
+                (i * pixel_size, j * pixel_size),
+            );
         }
     }
 
     let oriented = find_orientation(&image, |p| {
-        let raw: Vec<String> = p.rows_iter().map(|c| c.collect()).collect();
-        let c = count_monsters(&raw);
-        c > 0
+        count_monsters(&p)> 0
     });
-    let raw: Vec<String> = oriented.rows_iter().map(|c| c.collect()).collect();
-    count_chop(&raw) - 15*count_monsters(&raw)
+    count_waves(&oriented) - 15 * count_monsters(&oriented)
 }
 
-fn count_monsters(image: &Vec<String>) -> usize {
-    let monster = "
-..................#.
-#....##....##....###
-.#..#..#..#..#..#...
-".trim().lines().map(|l| Regex::new(l).unwrap()).collect::<Vec<_>>();
+fn count_waves(image: &Array2D<char>) -> usize {
+    image.elements_row_major_iter()
+        .filter(|c| **c == '#')
+        .count()
+}
+
+fn count_monsters(image: &Array2D<char>) -> usize {
+    let simage: String = image.elements_row_major_iter().collect();
+
+    // In order to make a single regex for this we want to pad out the line wraps
+    // with `.` for match anything.
+    let line_over_run = (simage.len() as f64).sqrt() as usize - 20;
+    let monster = vec![
+        "..................#.",
+        "#....##....##....###",
+        ".#..#..#..#..#..#...",
+    ]
+    .join(String::from_utf8(vec![b'.'; line_over_run]).expect("OMG").as_str());
+    let re_monster = Regex::new(&monster).unwrap();
 
     let mut count = 0;
-    for i in 0..image.len() - 3 {
-        let mut j = 0;
-        loop {
-            if let Some(m) = monster[0].find_at(&image[i], j) {
-                j = m.start();
-
-                let n1 = monster[1].find_at(&image[i+1], j).map_or(image.len(), |m| m.start());
-                let n2 = monster[2].find_at(&image[i+2], j).map_or(image.len(), |m| m.start());
-                if j == n1 && j == n2 {
-                    count += 1
-                }
-                j += 1;
-            } else {
-                break;
-            }
-
+    let mut j = 0;
+    loop {
+        if let Some(m) = re_monster.find_at(&simage, j) {
+            count += 1;
+            j = m.start() + 1;
+        } else {
+            break;
         }
     }
     count
-}
-
-fn count_chop(image: &Vec<String>) -> usize {
-    image.iter().map(|l| l.chars().filter(|c| *c == '#').count()).sum()
 }
 
 #[test]
@@ -276,8 +286,12 @@ fn test_find() {
 #....##..#.#########..##
 #...#.....#..##...###.##
 #..###....##.#...##.##.#
-    ".trim().lines().map(|l| l.to_string()).collect::<Vec<_>>();
+    "
+    .trim()
+    .lines()
+    .map(|l| l.to_string())
+    .collect::<Vec<_>>();
 
     assert_eq!(count_monsters(&image), 2);
-    assert_eq!(count_chop(&image) - 2*15, 273);
+    assert_eq!(count_chop(&image) - 2 * 15, 273);
 }
